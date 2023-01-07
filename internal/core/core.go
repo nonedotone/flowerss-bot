@@ -17,7 +17,7 @@ import (
 	"github.com/indes/flowerss-bot/internal/feed"
 	"github.com/indes/flowerss-bot/internal/log"
 	"github.com/indes/flowerss-bot/internal/model"
-	"github.com/indes/flowerss-bot/internal/preview"
+	tgraph "github.com/indes/flowerss-bot/internal/preview"
 	"github.com/indes/flowerss-bot/internal/storage"
 	"github.com/indes/flowerss-bot/pkg/client"
 )
@@ -302,7 +302,7 @@ func (c *Core) AddSourceContents(
 			Description:  item.Content, //replace all kinds of <br> tag
 			SourceID:     source.ID,
 			RawID:        item.GUID,
-			HashID:       model.GenHashID(source.Link, item.GUID),
+			HashID:       model.GenHashID(source.Link, item.Link),
 			RawLink:      item.Link,
 			TelegraphURL: previewURL,
 		}
