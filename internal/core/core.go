@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/mmcdole/gofeed"
+	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -279,7 +280,7 @@ func (c *Core) CreateSource(ctx context.Context, sourceURL string) (*model.Sourc
 	}
 	defer c.ClearSourceErrorCount(ctx, s.ID)
 
-	if _, err := c.AddSourceContents(ctx, s, rssFeed.Items); err != nil {
+	if _, err := c.AddSourceContents(ctx, s, rssFeed.Items, true); err != nil {
 		log.Errorf("add source content failed, %v", err)
 		return nil, err
 	}
@@ -287,14 +288,15 @@ func (c *Core) CreateSource(ctx context.Context, sourceURL string) (*model.Sourc
 }
 
 func (c *Core) AddSourceContents(
-	ctx context.Context, source *model.Source, items []*gofeed.Item,
+	ctx context.Context, source *model.Source, items []*gofeed.Item, first ...bool,
 ) ([]*model.Content, error) {
 	var wg sync.WaitGroup
 	var contents []*model.Content
 	for _, item := range items {
+		zap.S().Infof("New item title: %s, link: %s", item.Title, item.Link)
 		wg.Add(1)
 		previewURL := ""
-		if config.EnableTelegraph && len([]rune(item.Content)) > config.PreviewText {
+		if (len(first) == 0 || !first[0]) && config.EnableTelegraph && len([]rune(item.Content)) > config.PreviewText {
 			previewURL, _ = tgraph.PublishHtml(source.Title, item.Title, item.Link, item.Content)
 		}
 		content := &model.Content{
