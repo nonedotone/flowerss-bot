@@ -92,7 +92,7 @@ func NewCoreFormConfig() *Core {
 
 	// httpclient
 	clientOpts := []client.HttpClientOption{
-		client.WithTimeout(10 * time.Second),
+		client.WithTimeout(30 * time.Second),
 	}
 	if config.Socks5 != "" {
 		clientOpts = append(clientOpts, client.WithProxyURL(fmt.Sprintf("socks5://%s", config.Socks5)))
